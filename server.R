@@ -1,29 +1,51 @@
+#### -----------------------------------------------------------------------------
+#### IMPORTANT: This app is deployed as appName = mock. So, after setting up the account info
+#### using rsconnect::setAcountInfo() with the token and secret in shinyapps.io, 
+#### you have to run the command like this>
+#### rsconnect::deployApp(appName = "mock", account = "iese")
+
+#### -----------------------------------------------------------------------------
 #### ----- PACKAGES 
 #### Load these packages for the functions you need.
 library(shiny)
 library(googlesheets)
 library(dplyr)
 
+#### google authentification token...
+gs_auth(token = "www/googlesheets_token.rds")
+
+#### -----------------------------------------------------------------------------
 #### ----- LOADING STATIC DATA
 #### I will load the data that does not change with the app. 
 #### It is data already stored in googlesheets. 
-#### VERY IMPORTANT: DO NOT CHANGE THE NAMES OF COLUMNS OR WORKSHEETS IN SHEET!!!
-
+#### VERY IMPORTANT: DO NOT CHANGE THE NAMES OF COLUMNS OR WORKSHEETS IN EACH SHEET!!!
 
 #### here are the keys for each googlesheet we will use. 
-key_interviewers <- "1PCvpwZvn27zrktaInSs0XobnOY2DLu93behI_Iy4big"
-key_results <- "16q9rU-uiDZXxiLbH9NY9Mv_N_2PNsBkPVozItCQGHqM"
+#### To get a key> go to the sheet and get the share link, then 
+#### do> googlesheets::gs_url("url...")
+#### that will give you a key to use... 
+key_interviewers <- "1fcz_yJBUiHMGsnibUjCHsfbmUF8M6vF5TeDounbIAAU"
+key_results <- "1nADMuhbIrIksbOLOyW2FkyEBgdk1C4c3RU65ZcAlfag"
+
+button_choices <- c("Brainstorming",
+                    "Chart Reading", 
+                    "Estimating", 
+                    "Energy and Enthusiasm", 
+                    "Executive Summary", 
+                    "Market Sizing", 
+                    "MECE Structure")
 
 #### Now, I am using the googlesheets package to load the interviewers sheet
-interviewers <- gs_key(key_interviewers, lookup = FALSE, visibility = "private") %>% 
-  gs_read(ws = "Interviewers") # only accessing one worksheet... 
+mentors <- gs_key(key_interviewers, lookup = FALSE, visibility = "private") %>% 
+  gs_read(ws = "Mentors") # only accessing one worksheet... 
 
-interviewees <- gs_key(key_interviewers, lookup = FALSE, visibility = "private") %>% 
-  gs_read(ws = "Interviewed") # accessing the other worksheet...
+mentees <- gs_key(key_interviewers, lookup = FALSE, visibility = "private") %>% 
+  gs_read(ws = "Mentees") # accessing the other worksheet...
 
 #### loading the results sheet (not reading, but keeping the connection open.)
 results <- gs_key(key_results, lookup = FALSE, visibility = "private")
 
+#### -----------------------------------------------------------------------------
 ##### ----------- SERVER
 ##### This is the collection of data that is "transmitted" in the shiny app to the 
 ##### user interface file (ui.R)
@@ -39,57 +61,55 @@ shinyServer(function(input, output) {
   #### e1 = interviewers drop-down menu
   output$e1 <- renderUI({
     shiny::selectizeInput(inputId = 'interviewer', 
-                          choices = interviewers$Email,
+                          choices = mentors$Email,
                           label = "Interviewer (person conducting the mock)")
   })
   #### e2 = interviewees drop-down menu
   output$e2 <- renderUI({
     shiny::selectizeInput(inputId = 'interviewee', 
-                          choices = interviewees$Email, 
-                          label = "Interviewee (person under fire)")
+                          choices = mentees$Email, 
+                          label = "Interviewee")
   })
+  #### e3 = button choices, I take from here so that when we filter to find exact matches to store, they are the same exact phrases
+  output$e3 <- renderUI({
+    shiny::checkboxGroupInput(inputId = "improvements", label = "Improvements",
+                              choices = button_choices,
+                              selected = ",")
+  })
+  
   
   #### ----- SAVING RESULTS
   #### When the submit botton is pressed, all the results in each UI element
   #### are recorded in a data.frame. Then that is added as a row in the results googlesheet.
  
-  eventReactive(input$submit, {
-    ####     results_df <- data.frame("TimeStamp" = Sys.time(), 
-    ####                           "Interviewee" = 1,
-    ####                          "Interviewere" = 2,
-    ####                            "TypeInterviewer" = 3, 
-    ####                          "CaseType" = 4, 
-    ####                          "Industry" = 5, 
-    ####                          "ProblemUnderstanding" = 5, 
-    ####                          "Structure" = 3,
-    ####                          "Creativity" = 2, 
-    ####                          "Quant" = 4,
-    ####                         "Communication" = 4, 
-    ####                          "GeneralText" = 2, 
-    ####                          "ImproveBrainstorm" = 3, 
-    ####                          "ImproveChart" = "test", 
-    ####                          "ImproveEstimating" = "test", 
-    ####                          "ImproveEnergy" = "test", 
-    ####                          "ImproveExecSum" = "test", 
-    ####                            "ImproveMarketSize" = "test", 
-    ####                          "ImproveMECE" = "test", 
-    ####                          "ImproveSynthesis" = "test"
-                             ####   )
+  #### First, I will do a function to return a string of 
+  
+  observeEvent(input$submit, {
     
-    results_vector <- c(Sys.time(), input$interviewee,input$interviewer,
+   button_vector <- button_choices %in% c(unlist(input$improvements))
+   results_vector <- c(as.character(Sys.time()), input$interviewee,input$interviewer,
                         input$type_interviewer, input$case_type, 
                         input$Industry, input$understanding, input$structure,
-                        input$creativity, input$quant, input$communication, 
-                        input$other, input$improvements, "test",  "test", "test", 
-                        "test", "test","test","test")
+                        input$creativity, input$quant, input$synthesis, input$communication, 
+                        button_vector, input$other
+                       )
+
     
-   
     gs_add_row(gs_key(key_results, lookup = FALSE, visibility = "private"), ws = "Results", input = results_vector)
     # results_vector
   })
-
+  
   ts <- eventReactive(input$submit, {"Sucess!"})
   output$submitsucess <- renderText(ts())
-  
-  
+
+  #output$txt <- renderText({paste0(c(input$improvements), "-", button_choices %in% input$improvements)})
 })
+
+
+### new section after quantitative
+### download when done 
+### 1. new shinyapps account
+### 2. other section at the end
+### 3. delete synthesis in buttons
+
+

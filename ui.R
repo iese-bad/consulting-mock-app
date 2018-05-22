@@ -1,6 +1,19 @@
 library(googlesheets)
 library(shiny)
 
+###### ---------------------------------
+# Choices for buttons 
+# IMPORTANT: This has to be the same EXACTLY as the list of button choices in 
+
+c(Brainstorming = "Brainstorming",
+  "Chart Reading" = "Chart Reading", 
+  "Estimating" = "Estimating", 
+  "Energy and Enthusiasm" = "Energy and Enthusiasm", 
+  "Executive Summary" = "Executive Summary", 
+  "Market Sizing" = "Market Sizing", 
+  "MECE Structure" = "MECE Structure", 
+  "Synthesis" = "Synthesis")
+
 
 
 shinyUI(
@@ -8,7 +21,7 @@ shinyUI(
   #fluidPage(
   navbarPage("IESE Consulting Club",
              tabPanel("Interview Mock",  
-                      h1("Welcome to this mock!"), 
+                      h1("Welcome to your mock!"), 
                       hr(),
   fluidRow(
     column(4,
@@ -71,6 +84,14 @@ shinyUI(
                               max = 4,
                               value = 3),
            hr(),
+           h2("Synthesis"),
+           HTML("<strong>1 = Poor</strong> - Forgot learning from case, rambling, does not draw new insights, no plan forward.</br> 
+                <strong>4 = Outstanding </strong> - Summarizes info from case, draws conclusions from info, concise and structured, recommendation for future actions."),
+           shiny::sliderInput(inputId = "synthesis",
+                              label = ":",
+                              min = 1,
+                              max = 4,
+                              value = 3),
            h2("Communication"),
            HTML("<strong>1 = Poor</strong> - Low energy, lacks confidence; mindset is passive, resistant and/or confrontational; missing or unstructured conclusion; never pauses to recap or preview making it difficult to follow.</br> 
                 <strong>4 = Outstanding </strong> - High energy, confident, but humble; adopts a collaborative mindset; consistently communicates by first stating key message then outlining before diving into details; regularly recaps and previews as a transition between sections of the case."),
@@ -84,19 +105,12 @@ shinyUI(
            h4("General improvements"), 
            p("Please give any specific feedback which is relevant to this candidate. The text can be as long as you want."), 
            hr(), 
+           uiOutput('e3'), # SEE SERVER.R (it is constructed there and rendered here)
            shiny::textInput(inputId = "other", label = "Other improvements"),
-           shiny::checkboxGroupInput(inputId = "improvements", label = "Improvements",
-                                     choices = c(Brainstorming = "Brainstorming",
-                                                 "Chart Reading" = "Chart Reading", 
-                                                 "Estimating" = "Estimating", 
-                                                 "Energy and Enthusiasm" = "Energy and Enthusiasm", 
-                                                 "Executive Summary" = "Executive Summary", 
-                                                 "Market Sizing" = "Market Sizing", 
-                                                 "MECE Structure" = "MECE Structure", 
-                                                 "Synthesis" = "Synthesis"),
-                                     selected = ","),
            shiny::actionButton(inputId = "submit", label = "Submit"), 
            textOutput('submitsucess')
+           # ,textOutput('txt')
+           
            )
 )
 ))
