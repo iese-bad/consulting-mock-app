@@ -15,6 +15,7 @@ library(googleAuthR)
 library(mailR)
 library(plotly)
 library(ggplot2)
+library(highcharter)
 source("global.R")
 
 
@@ -76,14 +77,14 @@ shinyServer(function(input, output) {
   #### e1 = interviewers drop-down menu
   output$e1 <- renderUI({
     shiny::selectizeInput(inputId = 'interviewer', 
-                          choices = mentors$Email,
-                          label = "Interviewer (person conducting the mock)")
+                          choices = c("", mentors$Email),
+                          label = "Interviewer (person conducting the mock)", selected = NULL)
   })
   #### e2 = interviewees drop-down menu
   output$e2 <- renderUI({
     shiny::selectizeInput(inputId = 'interviewee', 
-                          choices = mentees$Email, 
-                          label = "Interviewee")
+                          choices = c("", mentees$Email), 
+                          label = "Interviewee", selected = NULL)
   })
   #### e3 = button choices, I take from here so that when we filter to find exact matches to store, they are the same exact phrases
   output$e3 <- renderUI({
@@ -100,10 +101,15 @@ shinyServer(function(input, output) {
   #### ----- SAVING RESULTS
   #### When the submit botton is pressed, all the results in each UI element
   #### are recorded in a vector. Then that is added as a row in the results googlesheet.
- 
+
   #### The observeEvent changes whenever the submit button is pushed. The results vector is what is stored. 
   observeEvent(input$submit, {
     
+    # People were pressing twice because of the lag between pressing and sending email, 
+    # so I added this BEFORE the email to keep them waiting...
+    withProgress(message = 'Sending email ... ',{
+      
+      
    button_vector <- button_choices %in% c(unlist(input$improvements))
    results_vector <- c(as.character(Sys.time()), input$interviewee,input$interviewer,
                         input$type_interviewer, input$case_type, 
@@ -124,6 +130,7 @@ shinyServer(function(input, output) {
     send_consulting_mail(interviewer = as.character(input$interviewee), # sending to this guy
                          interviewee = as.character(input$interviewer), # also sending to this guy
                          data_vector = results_vector)
+    })
   })
 
   
