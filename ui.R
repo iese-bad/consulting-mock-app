@@ -1,5 +1,6 @@
 library(googlesheets)
 library(shiny)
+library(highcharter)
 library(plotly)
 ###### ---------------------------------
 
@@ -98,6 +99,7 @@ shinyUI(
            uiOutput('e3'), # SEE SERVER.R (it is constructed there and rendered here)
            shiny::textInput(inputId = "other", label = "Other improvements"),
            shiny::actionButton(inputId = "submit", label = "Submit", icon = icon("refresh")), 
+           textOutput('submitwait'),
            textOutput('submitsucess')
            
            # ,textOutput('txt')
