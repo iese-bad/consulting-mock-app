@@ -21,7 +21,7 @@ shinyUI(
            # interviewers dropdown
            uiOutput('e1'), # SEE SERVER.R (it is constructed there and rendered here)
            shiny::selectInput(inputId = 'type_interviewer', 
-                                 choices = c("First year", "Second year", "External", "Career Services"),
+                                 choices = c("First year", "Second year", "Mentor", "External", "Career Services"),
                                  label = "Type of interviewer"),
            shiny::selectInput(inputId = 'case_type', label = "Case Type", 
                               choices = c("Growth Strat", "Industry Landscape and Comp. Dynamics", 
@@ -46,7 +46,7 @@ shinyUI(
                               label = "",
                               min = 1,
                               max = 4,
-                              value = 3),
+                              value = 3, step = 0.5),
            hr(), 
            h3("Structure"),
            HTML("<strong>1 = Poor</strong> - Convoluted and/or missing the point; approach is incoherent, confusing, uninsightful, boils the ocean without hitting the issues; no sense of how to tackle the issue; disorganized pages.</br> 
@@ -55,7 +55,7 @@ shinyUI(
                               label = "",
                               min = 1,
                               max = 4,
-                              value = 3),
+                              value = 3, step = 0.5),
            hr(),
            h3("Creativity"),
            HTML("<strong>1 = Poor</strong> - Lacks ideas, inspiration and approach to tackle the issue/question; struggles to think beyond the obvious.</br> 
@@ -64,7 +64,7 @@ shinyUI(
                               label = "",
                               min = 1,
                               max = 4,
-                              value = 3),
+                              value = 3, step = 0.5),
            hr(),
            h3("Quantitative"),
            HTML("<strong>1 = Poor</strong> - Struggles to set up the problem, slow to calculate, error prone, fails to check for accuracy & common sense, does not reflect on answer; unable to understand or misinterprets charts/data.</br> 
@@ -73,7 +73,7 @@ shinyUI(
                               label = "",
                               min = 1,
                               max = 4,
-                              value = 3),
+                              value = 3, step = 0.5),
            hr(),
            h3("Synthesis"),
            HTML("<strong>1 = Poor</strong> - Forgot learning from case, rambling, does not draw new insights, no plan forward.</br> 
@@ -82,7 +82,7 @@ shinyUI(
                               label = ":",
                               min = 1,
                               max = 4,
-                              value = 3),
+                              value = 3, step = 0.5),
            h3("Communication"),
            HTML("<strong>1 = Poor</strong> - Low energy, lacks confidence; mindset is passive, resistant and/or confrontational; missing or unstructured conclusion; never pauses to recap or preview making it difficult to follow.</br> 
                 <strong>4 = Outstanding </strong> - High energy, confident, but humble; adopts a collaborative mindset; consistently communicates by first stating key message then outlining before diving into details; regularly recaps and previews as a transition between sections of the case."),
@@ -90,7 +90,7 @@ shinyUI(
                               label = ":",
                               min = 1,
                               max = 4,
-                              value = 3)
+                              value = 3, step = 0.5)
   ), 
     column(4, 
            h2("General improvements", icon("cogs")), 
