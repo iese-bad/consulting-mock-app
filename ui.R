@@ -21,7 +21,7 @@ shinyUI(
            # interviewers dropdown
            uiOutput('e1'), # SEE SERVER.R (it is constructed there and rendered here)
            shiny::selectInput(inputId = 'type_interviewer', 
-                                 choices = c("First year", "Second year", "Mentor", "External", "Career Services"),
+                                 choices = c("First year", "Second year", "Mentor", "External", "Career Services","MiM"),
                                  label = "Type of interviewer"),
            shiny::selectInput(inputId = 'case_type', label = "Case Type", 
                               choices = c("Growth Strat", "Industry Landscape and Comp. Dynamics", 
